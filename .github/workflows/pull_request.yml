@@ -1,0 +1,21 @@
+name: Buld and test the Framework
+on: pull_request
+jobs:
+  run_tests:
+    name: Run bogus tests
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Set checks
+        run: |
+          curl -XPOST -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" "https://api.github.com/repos/surpher/ci-build-framework/statuses/${{ github.sha }}" --data '{"state":"failure","description":"Setting build checks","context":"default"}'
+      - name: Run tests (demo)
+        run: |
+          echo "⚠️ Running some tests #1..."
+          echo "⚠️ Running some tests #2..."
+          echo "⚠️ Running some tests #3..."
+      - name: Trigger tests on examples repos
+        run: |
+          echo 'SENDING: {"event_type":"build_application","client_payload":{"sha":"${{ github.sha }}"}}'
+          curl -XPOST -u "${{ secrets.PAT_USERNAME}}:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json"  -H "Content-Type: application/json" https://api.github.com/repos/surpher/ci-build-app/dispatches --data '{"event_type":"build_application","client_payload":{"sha":"${{ github.sha }}"}}'
